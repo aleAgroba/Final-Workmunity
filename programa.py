@@ -9,6 +9,7 @@ empresas = []
 lugares = []
 puestos = []
 vacantes = []
+referencias = []
 
 #Pagina principal
 @bottle.route('/')
@@ -30,10 +31,13 @@ def respuesta():
     estudios = bottle.request.forms.get('estudios')
 
     respuesta = requests.get("http://api.workmunity.com/1/search_offers?", params={"return":"json",
-  "callback":"json_callback","cache":"on","lang":"es","locale":"es","echo":"test","results":"10",
+	"callback":"json_callback","cache":"on","lang":"es","locale":"es","echo":"test","results":"10",
 	"keywords":palabraclave,"country":"es","state":provincia,"town":"0","radio":"on","studies":estudios,"level":"0",
 	"category":categoria,"subcategory":"0","sector":sector,"salary":"0","contract":"0","workday":"0",
 	"only_verified":"off","only_without_experience":"off"})
+
+    for i in xrange(0,int(len(json.loads(respuesta.text)))):
+	referencias.append(json.loads(respuesta.text)[i]['reference'])
 
     for i in xrange(0,int(len(json.loads(respuesta.text)))):
         empresas.append(json.loads(respuesta.text)[i][u'company'])
@@ -47,6 +51,7 @@ def respuesta():
     for i in xrange(0,int(len(json.loads(respuesta.text)))):
 	vacantes.append(json.loads(respuesta.text)[i][u'vacancies'])
 
-    return bottle.template('respuesta.tpl',ofertas=len(json.loads(respuesta.text)),empresas=empresas,lugares=lugares,puestos=puestos,vacantes=vacantes,palabraclave=palabraclave,provincia=provincia,categoria=categoria,estudios=estudios,sector=sector)
+    return bottle.template('respuesta.tpl',ofertas=len(json.loads(respuesta.text)),referencias=referencias,empresas=empresas,lugares=lugares,puestos=puestos,vacantes=vacantes,palabraclave=palabraclave,provincia=provincia,categoria=categoria,estudios=estudios,sector=sector)
 bottle.debug(True)
 bottle.run(host='localhost',port=8080)
+
